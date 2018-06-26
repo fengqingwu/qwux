@@ -5,12 +5,13 @@
       <el-row :gutter="20">
         <el-col :span="18">
           <el-form-item label="空盘编码" prop="coiledNo" >
-            <el-input type="text" v-model.trim="ruleForm.coiledNo" :disabled="isAmount" maxlength="30"></el-input>
+            <el-input type="text" v-model.trim="ruleForm.coiledNo" :disabled="isAmount" maxlength="30" style="ime-mode:disabled"  onKeyUp="value=value.replace(/[\W]/g,'')"></el-input>
           </el-form-item>
         </el-col>
          <el-col :span="18">
-          <el-form-item label="内周长" prop="crycle" >
-            <el-input class="circle" type="number" v-model.trim="ruleForm.crycle" :disabled="isAmount" maxlength="30" style="border:none"></el-input>
+          <el-form-item label="内周长" prop="crycle">
+            <el-input class="circle" type="number" v-model.trim="ruleForm.crycle"  oninput="if(value.length>11)value=value.slice(0,11)"
+            :maxlength="inputMaxL"  @input="inputMaxL = /^\d+\.?\d{0,1}$/.test(ruleForm.crycle) ? null : ruleForm.crycle.length - 1"   ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="18">
@@ -36,7 +37,7 @@
               </el-option>
             </el-select>
           </el-form-item>
-        </el-col> 
+        </el-col>
       </el-row>
     </el-form>
   </div>
@@ -50,6 +51,15 @@
   export default {
     props: ['options', 'type'],
     data() {
+             let prodNoVD = (rule, value, callback) => {
+        if (!value||value.trim() === '') {
+           callback(new Error('此选择为必填,请填写'));
+        }else if (!/^[a-zA-Z0-9]{14}$/.test(value)) {
+          callback(new Error('格式有误'));
+        } else {
+          callback();   
+        }
+      }
       return {
         isAmount:false,
         factoryIdData:[],
@@ -73,13 +83,13 @@
             trigger: 'change'
           }
           ],//产品信息
-          /*   crycle:[
+            crycle:[
             {
             required: true,
             message: '请填写内周长名称',
             trigger: 'change'
           } 
-          ],//产品信息 */
+          ],//产品信息 
           factoryId:[
             { required: true, message: '请选择场地名称', trigger: 'change' }
           ],//产品编码....
@@ -187,7 +197,14 @@
         this.producInfoData = data.model;
        console.log(this.producInfoData)
       })   */
-    }
+      
+    },
+
+    watch:{
+            coiledNo:function(){
+                this.searcBarCode=this.searcBarCode.replace(/[\W]/g,'');
+            },
+    },
   }
 
 </script>

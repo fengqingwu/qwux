@@ -17,10 +17,11 @@
       <p-l-toast-body ref="ToastBody" :type="toastType"></p-l-toast-body>
     </mes-toast>
     <!-- 查看详情 -->
-    <mes-toast :config="toastInfoData" @infoClose="infoClose" @print="print" @submit="Submit" >
+    <mes-toast :config="toastInfoData" @infoClose="infoClose" @print="print" >
       <!-- 弹窗内容 -->
       <!-- <look-info  :config="lookInfoData"></look-info> -->
       <print ref="ToastBody" :config="lookInfoData"></print>
+      <div class="xh-toast-body1" v-show="false"></div>
     </mes-toast>
        </div>
        
@@ -289,11 +290,29 @@ export default {
         this.getDate(this.search.searchData);
       });
     },
+      domRender() {
+        var  element = '<div class="print-content">',obj=this.lookInfoData;
+        for (var attr in this.attrObj) {
+            if(attr==="imgUrl"){
+            element +='<div class="toast-body-item">' + '<span>' + this.attrObj[attr] + '：</span><img src="'+ obj[attr]+'"/></div>'
+            }
+            else if(attr==="barcode"){
+            element +='<div class="toast-body-item">' + '<span>' + this.attrObj[attr] + '：</span><img src="data:image/png;base64,'+ obj[attr]+'"/></div>'
+            }
+            else{
+             element += '<div class="toast-body-item">' + '<span>' + this.attrObj[attr] + '：</span>' + obj[attr] + '</div>'
+            }  
+        }
+        element +='</div>'
+        return element;
+      },
    print(){
-
-      PRINT.EXCEL('<style>.xh-toast-body{margin:0px auto;}</style>',document.getElementsByClassName('xh-toast-body')[0]);
+     let form=document.getElementsByClassName('xh-toast-body1')[0];
+         form.innerHTML=this.domRender();
+      PRINT.EXCEL('<style>.print-content{padding-left:20px}.xh-toast-body{margin:0px auto; .toast-body-item{padding-left:12px; }img{margin:-10px 0 0 -20px}}</style>',form);
       
     },
+    
     close() {
       //关闭弹窗
       this.$refs["ToastBody"].resetForm();
